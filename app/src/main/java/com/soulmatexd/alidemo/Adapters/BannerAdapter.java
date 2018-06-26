@@ -13,7 +13,7 @@ import com.soulmatexd.alidemo.SubAdapter;
 
 //由于这个子View 是个Banner，所以在SubAdapter的基础里要使用PagerAdapter
 public class BannerAdapter extends SubAdapter {
-    RecyclerView.RecycledViewPool pool;
+    private RecyclerView.RecycledViewPool pool;
 
     public BannerAdapter(Context context, LayoutHelper layoutHelper, int total, RecyclerView.RecycledViewPool pool) {
         super(context, layoutHelper, total);
@@ -53,7 +53,9 @@ public class BannerAdapter extends SubAdapter {
 
             viewPager.setLayoutParams(new VirtualLayoutManager.LayoutParams(ViewGroup.LayoutParams.MATCH_PARENT, 200));
 
-            // from position to get adapter
+            //这里由于偷懒，复用了SubAdapter的holder，又不想在这里重写ViewHolder。。
+            // 所以就每次都new了。。正规的写法应该是 这个BannerAdapter也应该给它配一个ViewHolder，
+            //并把 LayoutParams 和Adapter这些信息存入ViewHolder中
             viewPager.setAdapter(new PagerAdapter(this, pool));
         }
     }

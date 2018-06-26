@@ -7,6 +7,7 @@ import android.graphics.drawable.Drawable;
 import android.os.Handler;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.design.widget.TabLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.support.v7.widget.RecyclerView;
@@ -22,14 +23,17 @@ import org.json.JSONArray;
 import org.json.JSONException;
 
 import java.io.BufferedInputStream;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 
 public class TangramActivity extends AppCompatActivity {
 
-    TangramEngine engine;
-    TangramBuilder.InnerBuilder builder;
-    RecyclerView recyclerView;
+    private static final String TAG = "TangramActivity";
+
+    private TangramEngine engine;
+    private TangramBuilder.InnerBuilder builder;
+    private RecyclerView recyclerView;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,19 +82,29 @@ public class TangramActivity extends AppCompatActivity {
 
         //由于没有接口。我的服务器方面的知识学的也不太好。所以直接加载本地数据，借用了官方的mock
         //具体的数据在assets文件夹下
-        String json = new String(getAssertsFile(this, "data.json"));
-        JSONArray data = null;
-        try {
-            data = new JSONArray(json);
-            engine.setData(data);
-        } catch (JSONException e) {
-            e.printStackTrace();
+
+        byte[] assertsFile = getAssertsFile(this, "data.json");
+        if (assertsFile != null) {
+            String json = new String();
+            JSONArray data = null;
+            try {
+                data = new JSONArray(json);
+                engine.setData(data);
+            } catch (JSONException e) {
+                e.printStackTrace();
+                Log.d(TAG, "解析json失败");
+            }
+        }else {
+            Log.d(TAG, "读取文件失败");
         }
+
 
 
     }
 
-    public static byte[] getAssertsFile(Context context, String fileName) {
+    private static byte[] getAssertsFile(Context context, String fileName) {
+        // 这个地方怎么检验是否非法？
+
         InputStream inputStream = null;
         AssetManager assetManager = context.getAssets();
         try {
@@ -109,10 +123,11 @@ public class TangramActivity extends AppCompatActivity {
 
                 return data;
             } catch (IOException e) {
-
+                Log.d(TAG, "异常：" + e.getMessage());
             } finally {
                 if (bis != null) {
                     try {
+                        //这里，bufferInputStream 被close之后， 里面的inputStream也会被随之close
                         bis.close();
                     } catch (Exception e) {
 
